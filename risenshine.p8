@@ -23,7 +23,8 @@ jelly = obj:new({
 	oxygen = 20,
 	prop = 3,
 	spr = 2, 
-	dir = 0
+	dir = 0,
+	score = 0
 })
 
 function jelly:update()
@@ -64,10 +65,10 @@ function jelly:collides(other)
  if other.fx==true then
   return false
  end
-	dx=self.x-other.x
-	dy=self.y-other.y
+	dx=self.x/10-other.x/10
+	dy=self.y/10-other.y/10
 	dist=dx^2+dy^2
-	if dist<=(self.r+other.r)^2 then
+	if dist<=(self.r/10+other.r/10)^2 then
 		return true
 	end
 	return false
@@ -95,7 +96,8 @@ end
 
 function bubble:draw()
  if frame%2==0 then
-  circ(self.x,self.y,1,12)
+  r=self.lt/30
+  circ(self.x,self.y,r,12)
  end
 end
 
@@ -143,6 +145,7 @@ function air:collided(jel)
 	for i=1,8 do
 	 add(actors,bubble:new({x=self.x,y=self.y+4,vx=rand(-2,2),vy=rand(1,2),lt=rand(30,120)}))	
 	end
+	jel.score+=-flr(-jel.oxygen)*4
 	jel.oxygen=20
 end
 
@@ -180,13 +183,22 @@ function draw_ui()
 	rectfill(0,118,128,128,0)
 	print("oxygen",1,119,7)
 	print("score",80,119,7)
-	
-	ox=player.oxygen/4
-	for i=0,ox-1 do
+	print(player.score,104,119,7)
+
+	ox=clamp(player.oxygen-0.05,0,20)
+	ox=(ox/19.95)*5
+	for i=0,4 do
+	 if i < ox then
+	  pal(12,12)
+	 else
+ 	 pal(12,5)
+	 end
 		spr(20,28+i*6,119)
 	end
+	pal(12,12)
 	
-	w=(player.prop/3)*64
+	p=clamp(player.prop-0.5,0,player.prop)
+	w=(p/2.5)*64
 	rectfill(64-w,126,64+w,128,12)
 end
 
