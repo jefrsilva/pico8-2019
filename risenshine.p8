@@ -41,7 +41,7 @@ function jelly:update()
 	if btn(🅾️) then
 		self.spr=18
 	 if self.prop >= 0.5 then
-	 	sfx(0,0)
+	 	sfx(0,3)
 	  add(actors,bubble:new({x=self.x,y=self.y+4,vx=rand(-2,2)-self.dir*0.5,vy=rand(1,2),lt=rand(30,120)}))
  	 self.prop -= 0.5
  	 self.vy -= 0.375
@@ -65,7 +65,7 @@ function jelly:draw()
 		pal(12,0)		
 	end
 	spr(s,self.x-4,self.y-4)
-	pset(12,12)
+	pal(12,12)
 end
 
 function jelly:collides(other)
@@ -166,6 +166,39 @@ function fish:collided(jel)
 	end
 end
 
+squid = obj:new({
+ x=0,
+ y=0,
+ r=6,
+	vx=0,
+	vy=0.25,
+})
+
+function squid:draw()
+	f=self.vx<0
+	s=flr(frame/2%2)*2
+ spr(32+s,self.x-8,self.y-8,2,2,f)
+end
+
+function squid:update()
+	if self.x >= 124 then
+		self.vx=-1
+	end
+	if self.x <= 4 then
+		self.vx=1
+	end
+	self.x+=self.vx
+	self.y+=self.vy
+end
+
+function squid:collided(jel)
+ if jel.inv==0 then
+  jel.inv=60
+		jel.prop=0
+		jel.vy=1
+	end
+end
+
 air = obj:new({
  x=0,
  ix=0,
@@ -188,6 +221,7 @@ end
 
 function air:collided(jel)
 	self.dead=true
+	sfx(1,3)
 	for i=1,8 do
 	 add(actors,bubble:new({x=self.x,y=self.y+4,vx=rand(-2,2),vy=rand(1,2),lt=rand(30,120)}))	
 	end
@@ -254,6 +288,100 @@ function _init()
  actors = {}
  player=jelly:new()
  add(actors, player)
+ spawners = {}
+ ms=cocreate(main_spawner)
+ add(spawners,ms)
+end
+
+function wait(interval)
+	local c=interval
+	while c>0 do
+		c-=1
+		yield()
+	end
+end
+
+function main_spawner()
+	add(spawners,cocreate(air_s1))
+	wait(1100)
+	add(spawners,cocreate(starfish_s1))
+	wait(1100)
+	add(spawners,cocreate(fish_s1))
+	wait(1100)
+	add(spawners,cocreate(squid_s1))
+	wait(1100)
+	add(spawners,cocreate(starfish_s4))
+	wait(1100)
+	add(spawners,cocreate(starfish_s1))
+	add(spawners,cocreate(fish_s1))
+	wait(1100)
+	add(spawners,cocreate(fish_s1))
+	add(spawners,cocreate(squid_s1))
+	wait(1100)
+	add(spawners,cocreate(starfish_s1))
+	add(spawners,cocreate(squid_s1))
+	wait(1100)
+	add(spawners,cocreate(starfish_s1))
+	add(spawners,cocreate(fish_s1))
+	add(spawners,cocreate(squid_s1))
+	wait(1200)
+	
+	add(spawners,cocreate(squid_s4))
+	wait(1100)
+	add(spawners,cocreate(fish_s2))
+	add(spawners,cocreate(squid_s2))
+	wait(1100)
+	add(spawners,cocreate(starfish_s3))
+	wait(1100)
+	add(spawners,cocreate(starfish_s2))
+	add(spawners,cocreate(squid_s2))
+	wait(1100)
+	add(spawners,cocreate(starfish_s2))
+	add(spawners,cocreate(fish_s2))
+	wait(1100)
+	add(spawners,cocreate(fish_s3))
+	wait(1100)
+	add(spawners,cocreate(fish_s3))
+	add(spawners,cocreate(squid_s1))
+	wait(1100)
+	add(spawners,cocreate(starfish_s2))
+	add(spawners,cocreate(fish_s2))
+	add(spawners,cocreate(squid_s2))
+	wait(1300)
+	
+	add(spawners,cocreate(fish_s4))
+	wait(1100)
+	add(spawners,cocreate(starfish_s3))
+	add(spawners,cocreate(squid_s1))
+	wait(1100)
+	add(spawners,cocreate(squid_s3))
+	add(spawners,cocreate(fish_s1))
+	wait(1100)
+	add(spawners,cocreate(starfish_s4))	
+	wait(1100)
+	add(spawners,cocreate(fish_s3))
+	add(spawners,cocreate(starfish_s1))
+	wait(1100)
+	add(spawners,cocreate(starfish_s2))
+	add(spawners,cocreate(fish_s1))
+	add(spawners,cocreate(squid_s1))
+	wait(1100)
+	add(spawners,cocreate(squid_s4))
+	wait(1100)
+	add(spawners,cocreate(squid_s3))
+	add(spawners,cocreate(starfish_s1))
+	wait(1100)
+	add(spawners,cocreate(starfish_s1))
+	add(spawners,cocreate(fish_s1))
+	add(spawners,cocreate(squid_s2)) 
+ wait(1200)
+ 
+	add(spawners,cocreate(starfish_s4))
+	add(spawners,cocreate(squid_s1)) 
+	wait(1100)
+	add(spawners,cocreate(starfish_s3))
+	add(spawners,cocreate(fish_s3))
+	add(spawners,cocreate(squid_s3)) 
 end
 
 function _update()
@@ -264,31 +392,141 @@ function _update()
    end
   end
   actor:update()
-  if actor.dead then
+  if actor.dead or actor.y<-12 or actor.y>140 then
    del(actors,actor)
   end
  end
  
- if depth%50==0 then
- 	add(actors,star:new({x=rand(10,117)}))
- end
- if depth%150==0 then
- 	px=rand(10,117)
- 	v=rnd(100)
- 	if v>50 then 
- 		v=1
- 	else
- 	 v=-1
- 	end
- 	varx=rnd(24)-12
- 	add(actors,fish:new({ix=px,x=px+varx,y=-10,vx=v}))
- end
- if depth%300==0 then
- 	add(actors,air:new({ix=rand(10,117),p=rnd(128)}))
+ for spawner in all(spawners) do
+  coresume(spawner)
+  if costatus(spawner)==false then
+  	del(spawners,spawner)
+  end
  end
  
  frame+=1
  depth-=1
+end
+
+function starfish_s1()
+	for i=1,10 do
+	 wait(90)
+  spawn_starfish()
+	end
+end
+
+function starfish_s2()
+	for i=1,13 do
+	 wait(75)
+  spawn_starfish()
+	end
+end
+
+function starfish_s3()
+	for i=1,16 do
+	 wait(60)
+  spawn_starfish()
+	end
+end
+
+function starfish_s4()
+	for i=1,33 do
+	 wait(30)
+  spawn_starfish()
+	end
+end
+
+function spawn_starfish()
+	add(actors,star:new({x=rand(10,117)}))
+end
+
+function fish_s1()
+	for i=1,5 do
+		wait(200)
+  spawn_fish()
+	end
+end
+
+function fish_s2()
+	for i=1,5 do
+		wait(180)
+  spawn_fish()
+	end
+end
+
+function fish_s3()
+	for i=1,6 do
+		wait(160)
+  spawn_fish()
+	end
+end
+
+function fish_s4()
+	for i=1,11 do
+		wait(90)
+  spawn_fish()
+	end
+end
+
+function spawn_fish()
+	px=rand(10,117)
+	v=rnd(100)
+	if v>50 then 
+		v=1
+	else
+	 v=-1
+	end
+	varx=rnd(24)-12
+	add(actors,fish:new({ix=px,x=px+varx,y=-10,vx=v}))
+end
+
+function squid_s1()
+	for i=1,5 do
+		wait(200)
+  spawn_squid()
+	end
+end
+
+function squid_s2()
+	for i=1,5 do
+		wait(170)
+  spawn_squid()
+	end
+end
+
+function squid_s3()
+	for i=1,7 do
+		wait(140)
+  spawn_squid()
+	end
+end
+
+function squid_s4()
+	for i=1,14 do
+		wait(70)
+  spawn_squid()
+	end
+end
+
+function spawn_squid()
+	v=rnd(100)
+	if v>50 then 
+		v=1
+	else
+	 v=-1
+	end
+ add(actors,squid:new({x=rand(8,120),y=136,vx=v,vy=-0.5})) 
+end
+
+function air_s1()
+	while true do
+		wait(180)
+  spawn_air()
+	end
+end
+
+function spawn_air()
+	add(actors,air:new({ix=rand(10,117),p=rnd(128)}))
 end
 
 function _draw()
@@ -299,8 +537,6 @@ function _draw()
  end
  draw_ui()
 end
-	
-	
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000000000000cc0000cccc0000cc0000000080000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -335,4 +571,5 @@ c000000c00c0cccc0c0cc0c0cccc0c00000000000000000000000000000000000000000000000000
 00000000000000000000a0000000000000000000bb00000000000bbbbb0000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000bbb000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
-000100000257004570075700b5700e570115701357016570185701b5701e570205702357026570275702c5702f57033570365703b5701a570145700b570025700257002570025700257002570025700257002570
+000200001c56024560215601a56020550275501d540175401a530235301f530175301a53025520205201a5101a51015500185001b5001e5001f5002050020500205001b5001650016500165001a5002150022500
+0002000001060090601306024060310500b050130501c050240502e050360503f040320402f0402b0302702023020200201b010320100a0000e00012000180001a00021000260002a0002d00035000380003d000
